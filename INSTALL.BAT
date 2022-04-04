@@ -11,6 +11,7 @@ echo Note: Mount the partition you want to install Windows on as C:.
 :install
 diskpart
 if not exist C:\ goto error2
+::Redundant write test
 echo test > C:\testfile
 if not exist C:\testfile goto error3
 del C:\testfile
