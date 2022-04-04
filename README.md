@@ -5,9 +5,10 @@ A simpler way to install Windows XP using the Windows Preinstalled Environment (
 This is the Windows XP Installer For WinPE developed by NTVMB. It is a simple solution to install Windows XP from a USB flash drive.
 This tool will guide you through preparing the Windows XP setup.
 
-You will need two things:
+You will need a few things:
 - A Windows Vista-8.1 installer ISO or a WinPE ISO using a Windows Vista-8.1 kernel (Windows 10 and newer do not work)
 - A Windows XP ISO
+- Familiarity with DISKPART
 
 Before you can begin, prepare the USB drive to install Windows XP.
 - Create a bootable WinPE USB. Several tools are available to do this.
