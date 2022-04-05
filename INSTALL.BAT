@@ -2,6 +2,11 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
+if not exist X:\Windows\System32\wpeutil.exe goto error4
+setlocal
+for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
+if %VERSION% GTR 6.3 goto error5
+endlocal
 if not exist \I386\* goto error
 ::Check if another drive is already mounted as C:.
 echo Unmount drive C: if another drive is already mounted there.
@@ -27,6 +32,7 @@ exit
 echo Error 1:
 echo I cannot find your Windows XP installation files. Is the installer placed in the drive containing your Windows XP files?
 echo Make sure to place the Windows XP files in the root directory of your USB drive.
+echo The installer cannot continue.
 pause
 exit
 
@@ -43,3 +49,15 @@ echo Cannot write to C:! Make sure you formatted the drive and it is not write-p
 pause
 cls
 goto install
+
+:error4
+echo Error 4:
+echo This utility must be run from the Windows Preinstalled Environment. The installer cannot continue.
+pause
+exit
+
+:error5
+echo Error 5:
+echo Your kernel is too new to install Windows XP from. The installer cannot continue.
+pause
+exit
