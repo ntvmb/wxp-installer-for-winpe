@@ -2,11 +2,14 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
+::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
+::Check Windows kernel version
 setlocal
 for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
 if %VERSION% GTR 6.3 goto error5
 endlocal
+::Check for Windows XP installation files
 if not exist \I386\* goto error
 ::Check if another drive is already mounted as C:.
 echo Unmount drive C: if another drive is already mounted there.
