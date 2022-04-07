@@ -14,7 +14,7 @@ if %1=="/templocation" (
   )
 )
 :start
-echo Windows XP Installer for WinPE v1.1.0-pre2.2
+echo Windows XP Installer for WinPE v1.1.0-pre2.3
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
