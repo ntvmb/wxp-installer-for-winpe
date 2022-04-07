@@ -2,8 +2,12 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
-if %1 == /templocation (if defined %2 (set TEMPLOCATION=%2) else goto error9) else set TEMPLOCATION=.
-echo Windows XP Installer for WinPE v1.1.0-pre2
+if %1=="/templocation" (
+  if not "%~2"=="" (
+    set TEMPLOCATION=%2
+  ) else goto error9
+) else set TEMPLOCATION=.
+echo Windows XP Installer for WinPE v1.1.0-pre2.1
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
