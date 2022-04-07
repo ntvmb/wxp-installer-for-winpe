@@ -22,6 +22,6 @@ WARNING: Some computers, particularly older computers, do not support booting fr
 Navigate to your WinPE USB and run INSTALL.BAT.
 
 If any other drive is already mounted as C:, the tool will automatically unmount the drive.
-From here, the tool will launch DISKPART so you can partition and format the disks, but make sure to mount the partition Windows will be installed on as the C: drive.
+From here, you can select how you want to partition your disks. (Ver 1.1.0 and above). If using guided partitioning, the installer will guide you on how you want to partition your disks. If using manual partitioning, the installer will launch DISKPART.
 
 Once you have finished partitoning the disks, the installation should be straightforward.
