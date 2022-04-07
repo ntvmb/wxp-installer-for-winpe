@@ -2,7 +2,7 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
-echo Windows XP Installer for WinPE version 1.1.0-gitcommit5
+echo Windows XP Installer for WinPE v1.1.0-gitcommit6
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -49,16 +49,75 @@ diskpart /s diskpart_tmp.script
 del diskpart_tmp.script
 echo I have retrieved the list of disks.
 :sel_disk
-if exist diskpart.script del diskpart.script
+if exist diskpart.script.tmp del diskpart.script.tmp
 set /p DISK_TO_PARTITION=Select the disk to partition... (Default: 0) 
 if not defined %DISK_TO_PARTITION% set DISK_TO_PARTITION=0
-echo sel dis %DISK_TO_PARTITION% >diskpart.script
+echo sel dis %DISK_TO_PARTITION% >diskpart.script.tmp
 echo Checking for selected disk...
-diskpart /s diskpart.script
+diskpart /s diskpart.script.tmp >nul
 if %errorlevel% NEQ 0 (echo Error 0x07: Selected disk does not exist. && goto sel_disk)
-
+echo lis par >> diskpart.script.tmp
+set PARTITION_COUNT=0
+for /f "eol=T skip=10 delims=x tokens=1-13" %%I in ('diskpart /s diskpart.tmp') do (echo %%I && (set /A PARTITION_COUNT=%PARTITION_COUNT%+1 >nul))
+:how_to_partition
+::Very long lines ahead. These may be hard to understand.
+if %PARTITION_COUNT% == 0 (
+  echo No previous partitions detected. What do you want to do?
+  echo 1 = Use entire disk
+  echo 2 = Use manual partitioning (Advanced)
+  echo 3 = Quit setup
+  set /p %HOWTOPARTITION%=
+  if %HOWTOPARTITION% == 1 ((echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start_partitioning)
+  if %HOWTOPARTITION% == 2 goto manual_part
+  if %HOWTOPARTITION% == 3 exit /b
+  echo Error 0x05: Invalid response. Must be a number between 1 and 3.
+  goto how_to_partition
+)
+if %PARTITION_COUNT% == 1 (
+  echo One partition was detected. What do you want to do?
+  echo 1 = Erase disk 
+  echo 2 = Use manual partitioning (Advanced)
+  echo 3 = Quit setup
+  set /p %HOWTOPARTITION%=
+  if %HOWTOPARTITION% == 1 (
+    (echo clean >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) goto start_partitioning
+  )
+  if %HOWTOPARTITION% == 2 goto manual_part
+  if %HOWTOPARTITION% == 3 exit /b
+  echo Error 0x05: Invalid response. Must be a number between 1 and 3.
+  goto how_to_partition
+)
+if %PARTITION_COUNT% GTR 1 (
+  echo Multiple partitions were detected. What do you want to do?
+  echo 1 = Erase disk
+  echo 2 = Replace a partition (Not recommended. It might break things)
+  echo 3 = Use manual partitioning (Advanced)
+  echo 4 = Quit setup
+  set /p %HOWTOPARTITION%=
+  if %HOWTOPARTITION% == 1 (
+    (echo clean >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && goto start_partitioning
+  )
+  if %HOWTOPARTITION% == 2 (
+    set /p PARTTOREPLACE=Partition to replace? (1-%PARTITION_COUNT%) && if defined %PARTTOREPLACE% (
+      if %PARTTOREPLACE% LEQ %PARTITION_COUNT% (
+        if %PARTTOREPLACE% NEQ 0 (
+          (echo sel par %PARTTOREPLACE% >> diskpart.script.tmp) && (echo del par >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start partitioning
+        ) else (
+          echo Error 0x05: Invalid response.
+        )
+      ) else (
+        echo Error 0x05: Invalid response.
+    ) else (
+    echo Error 0x05: Invalid response.
+  )
+  if %HOWTOPARTITION% == 3 goto manual_part
+  if %HOWTOPARTITION% == 4 exit /b
+  echo Error 0x05: Invalid response. Must be a number between 1 and 3.
+  goto how_to_partition
+)
 
 :manual_part
+if exist diskpart.script.tmp del diskpart.script.tmp
 echo Note: Mount the partition you want to install Windows on as C:.
 diskpart
 if not exist C:\ goto error2
