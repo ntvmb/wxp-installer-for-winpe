@@ -2,6 +2,7 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
+if %1 == /templocation (if defined %2 (set TEMPLOCATION=%2) else goto error9) else set TEMPLOCATION=.
 echo Windows XP Installer for WinPE v1.1.0-pre1
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
@@ -33,33 +34,31 @@ echo Begin Windows XP installation...
 START /WAIT \I386\WINNT32.EXE /SYSPART:C: /TEMPDRIVE:C: /MAKELOCALSOURCE
 if exist \i386\setuporg.exe xcopy \i386\setuporg.exe C:\$WIN_NT$.~LS\I386\ && if exist \i386\presetup.cmd xcopy \i386\presetup.cmd C:\$WIN_NT$.~LS\I386\
 if exist \OEM (mkdir C:\OEM && xcopy /s \OEM C:\OEM)
+if exist %TEMPLOCATION%\diskpart.script del %TEMPLOCATION%\diskpart.script
 echo Restarting computer...
 wpeutil reboot
 exit /b
 
 :guided_part
-echo As of now, guided partitioning is not yet implemented.
-echo Entering manual partitioning...
-goto manual_part
-echo test > testfile
+echo test > %TEMPLOCATION%\testfile
 if not exist testfile goto error7
-del testfile
-if exist diskpart.script.tmp del diskpart.script.tmp
-echo lis dis > diskpart_tmp.script
-diskpart /s diskpart_tmp.script
-del diskpart_tmp.script
+del %TEMPLOCATION%\testfile
+if exist %TEMPLOCATION%\diskpart.script.tmp del %TEMPLOCATION%\diskpart.script.tmp
+echo lis dis > %TEMPLOCATION%\diskpart_tmp.script
+diskpart /s %TEMPLOCATION%\diskpart_tmp.script
+del %TEMPLOCATION%\diskpart_tmp.script
 echo I have retrieved the list of disks.
 :sel_disk
-if exist diskpart.script.tmp del diskpart.script.tmp
+if exist %TEMPLOCATION%\diskpart.script.tmp del %TEMPLOCATION%\diskpart.script.tmp
 set /p DISK_TO_PARTITION=Select the disk to partition... (Default: 0) 
 if not defined %DISK_TO_PARTITION% set DISK_TO_PARTITION=0
-echo sel dis %DISK_TO_PARTITION% >diskpart.script.tmp
+echo sel dis %DISK_TO_PARTITION% >%TEMPLOCATION%\diskpart.script.tmp
 echo Checking for selected disk...
-diskpart /s diskpart.script.tmp >nul
+diskpart /s %TEMPLOCATION%\diskpart.script.tmp >nul
 if %errorlevel% NEQ 0 (echo Error 0x07: Selected disk does not exist. && goto sel_disk)
-echo lis par >> diskpart.script.tmp
+echo lis par >> %TEMPLOCATION%\diskpart.script.tmp
 set PARTITION_COUNT=0
-for /f "eol=T skip=10 delims=x tokens=1-13" %%I in ('diskpart /s diskpart.tmp') do (echo %%I && (set /A PARTITION_COUNT=%PARTITION_COUNT%+1 >nul))
+for /f "eol=T skip=10 delims=x tokens=1-13" %%I in ('diskpart /s %TEMPLOCATION%\diskpart.script.tmp') do (echo %%I && (set /A PARTITION_COUNT=%PARTITION_COUNT%+1 >nul))
 :how_to_partition
 ::Very long lines ahead. These may be hard to understand.
 if %PARTITION_COUNT% == 0 (
@@ -69,7 +68,7 @@ if %PARTITION_COUNT% == 0 (
   echo 3 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
-    (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start_partitioning
+    (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start_partitioning
   )
   if %HOWTOPARTITION% == 2 goto manual_part
   if %HOWTOPARTITION% == 3 exit /b
@@ -83,7 +82,7 @@ if %PARTITION_COUNT% == 1 (
   echo 3 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
-    (echo clean >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) goto start_partitioning
+    (echo clean >> %TEMPLOCATION%\diskpart.script.tmp) && (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start_partitioning
   )
   if %HOWTOPARTITION% == 2 goto manual_part
   if %HOWTOPARTITION% == 3 exit /b
@@ -98,13 +97,13 @@ if %PARTITION_COUNT% GTR 1 (
   echo 4 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
-    (echo clean >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && goto start_partitioning
+    (echo clean >> %TEMPLOCATION%\diskpart.script.tmp) && (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start_partitioning
   )
   if %HOWTOPARTITION% == 2 (
     set /p PARTTOREPLACE=Partition to replace? (1-%PARTITION_COUNT%) && if defined %PARTTOREPLACE% (
       if %PARTTOREPLACE% LEQ %PARTITION_COUNT% (
         if %PARTTOREPLACE% NEQ 0 (
-          (echo sel par %PARTTOREPLACE% >> diskpart.script.tmp) && (echo del par >> diskpart.script.tmp) && (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start partitioning
+          (echo sel par %PARTTOREPLACE% >> %TEMPLOCATION%\diskpart.script.tmp) && (echo del par >> %TEMPLOCATION%\diskpart.script.tmp) && (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start partitioning
         ) else (
           echo Error 0x05: Invalid response.
         )
@@ -115,7 +114,7 @@ if %PARTITION_COUNT% GTR 1 (
   )
   if %HOWTOPARTITION% == 3 goto manual_part
   if %HOWTOPARTITION% == 4 exit /b
-  echo Error 0x05: Invalid response. Must be a number between 1 and 3.
+  echo Error 0x05: Invalid response. Must be a number between 1 and 4.
   goto how_to_partition
 )
 :start_partitioning
@@ -126,8 +125,8 @@ if %PARTITION_COUNT% == 0 if %HOWTOPARTITION% == 1 (
   echo Assign partition to C:
   set /p ans=Write changes to disk? (Y/n)
   if %ans% == Y (
-  move diskpart.script.tmp diskpart.script
-  diskpart /s diskpart.script
+  move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
+  diskpart /s %TEMPLOCATION%\diskpart.script
   goto install
 ) else goto guided_part
 if %PARTITION_COUNT% == 1 if %HOWTOPARTITION% == 1 (
@@ -137,8 +136,8 @@ if %PARTITION_COUNT% == 1 if %HOWTOPARTITION% == 1 (
   echo Assign partition to C:
   set /p ans=Write changes to disk? (Y/n)
   if %ans% == Y (
-  move diskpart.script.tmp diskpart.script
-  diskpart /s diskpart.script
+  move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
+  diskpart /s %TEMPLOCATION%\diskpart.script
   goto install
 ) else goto guided_part
 if %PARTITION_COUNT% GTR 1 (
@@ -149,8 +148,8 @@ if %PARTITION_COUNT% GTR 1 (
     echo Assign partition to C:
     set /p ans=Write changes to disk? (Y/n)
     if %ans% == Y (
-    move diskpart.script.tmp diskpart.script
-    diskpart /s diskpart.script
+    move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
+    diskpart /s %TEMPLOCATION%\diskpart.script
     goto install
   ) else goto guided_part
   if %HOWTOPARTITION% == 2 (
@@ -161,13 +160,13 @@ if %PARTITION_COUNT% GTR 1 (
     echo Assign partition to C:
     set /p ans=Write changes to disk? (Y/n)
     if %ans% == Y (
-    move diskpart.script.tmp diskpart.script
-    diskpart /s diskpart.script
+    move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
+    diskpart /s %TEMPLOCATION%\diskpart.script
     goto install
   ) else goto guided_part
 
 :manual_part
-if exist diskpart.script.tmp del diskpart.script.tmp
+if exist %TEMPLOCATION%\diskpart.script.tmp del %TEMPLOCATION%\diskpart.script.tmp
 echo Note: Mount the partition you want to install Windows on as C:.
 diskpart
 if not exist C:\ goto error2
