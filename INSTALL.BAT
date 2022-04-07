@@ -3,7 +3,7 @@ rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
 if %1 == /templocation (if defined %2 (set TEMPLOCATION=%2) else goto error9) else set TEMPLOCATION=.
-echo Windows XP Installer for WinPE v1.1.0-pre1
+echo Windows XP Installer for WinPE v1.1.0-pre2
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -215,3 +215,8 @@ echo Error 0x06:
 echo Cannot create temporary files. I require a non-write-protected medium.
 echo Entering manual partitioning...
 goto manual_part
+
+:error9
+echo Error 0x08:
+echo Invalid syntax for switch %1. The installer cannot continue.
+exit /b
