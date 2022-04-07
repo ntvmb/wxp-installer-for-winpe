@@ -2,7 +2,7 @@
 rem Windows XP Installer For WinPE
 title Windows XP Installer
 cls
-echo Windows XP Installer for WinPE v1.1.0-gitcommit6
+echo Windows XP Installer for WinPE v1.1.0-pre1
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -44,6 +44,7 @@ goto manual_part
 echo test > testfile
 if not exist testfile goto error7
 del testfile
+if exist diskpart.script.tmp del diskpart.script.tmp
 echo lis dis > diskpart_tmp.script
 diskpart /s diskpart_tmp.script
 del diskpart_tmp.script
@@ -67,7 +68,9 @@ if %PARTITION_COUNT% == 0 (
   echo 2 = Use manual partitioning (Advanced)
   echo 3 = Quit setup
   set /p %HOWTOPARTITION%=
-  if %HOWTOPARTITION% == 1 ((echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start_partitioning)
+  if %HOWTOPARTITION% == 1 (
+    (echo cre par pri >> diskpart.script.tmp) && (echo form quick fs=ntfs >> diskpart.script.tmp) && (echo assign letter c >> diskpart.script.tmp) && goto start_partitioning
+  )
   if %HOWTOPARTITION% == 2 goto manual_part
   if %HOWTOPARTITION% == 3 exit /b
   echo Error 0x05: Invalid response. Must be a number between 1 and 3.
@@ -115,6 +118,53 @@ if %PARTITION_COUNT% GTR 1 (
   echo Error 0x05: Invalid response. Must be a number between 1 and 3.
   goto how_to_partition
 )
+:start_partitioning
+echo The following operations are going to be performed:
+if %PARTITION_COUNT% == 0 if %HOWTOPARTITION% == 1 (
+  echo Create primary partition on disk %DISK_TO_PARTITION%
+  echo Format partition 1 as NTFS
+  echo Assign partition to C:
+  set /p ans=Write changes to disk? (Y/n)
+  if %ans% == Y (
+  move diskpart.script.tmp diskpart.script
+  diskpart /s diskpart.script
+  goto install
+) else goto guided_part
+if %PARTITION_COUNT% == 1 if %HOWTOPARTITION% == 1 (
+  echo Delete partition 1 on disk %DISK_TO_PARTITION%
+  echo Create primary partition on disk %DISK_TO_PARTITION%
+  echo Format partition on as NTFS
+  echo Assign partition to C:
+  set /p ans=Write changes to disk? (Y/n)
+  if %ans% == Y (
+  move diskpart.script.tmp diskpart.script
+  diskpart /s diskpart.script
+  goto install
+) else goto guided_part
+if %PARTITION_COUNT% GTR 1 (
+  if %HOWTOPARTITION% == 1 (
+    echo Delete all partitions on disk %DISK_TO_PARTITION%
+    echo Create primary partition on disk %DISK_TO_PARTITION%
+    echo Format partition on as NTFS
+    echo Assign partition to C:
+    set /p ans=Write changes to disk? (Y/n)
+    if %ans% == Y (
+    move diskpart.script.tmp diskpart.script
+    diskpart /s diskpart.script
+    goto install
+  ) else goto guided_part
+  if %HOWTOPARTITION% == 2 (
+    echo Delete partition %PARTTOREPLACE% on disk %DISK_TO_PARTITION%
+    echo Delete all partitions on disk %DISK_TO_PARTITION%
+    echo Create primary partition on disk %DISK_TO_PARTITION%
+    echo Format partition on as NTFS
+    echo Assign partition to C:
+    set /p ans=Write changes to disk? (Y/n)
+    if %ans% == Y (
+    move diskpart.script.tmp diskpart.script
+    diskpart /s diskpart.script
+    goto install
+  ) else goto guided_part
 
 :manual_part
 if exist diskpart.script.tmp del diskpart.script.tmp
