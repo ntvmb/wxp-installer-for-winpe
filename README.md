@@ -8,7 +8,7 @@ This tool will guide you through preparing the Windows XP setup.
 You will need a few things:
 - A Windows Vista-8.1 installer ISO or a WinPE ISO using a Windows Vista-8.1 kernel (Windows 10 and newer do not work)
 - A Windows XP ISO
-- Familiarity with DISKPART
+- Familiarity with DISKPART (if using manual partitioning)
 
 Before you can begin, prepare the USB drive to install Windows XP.
 - Create a bootable WinPE USB. Several tools are available to do this.
