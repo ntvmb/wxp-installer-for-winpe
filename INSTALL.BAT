@@ -6,7 +6,7 @@ if "%~1"=="" (
   set TEMPLOCATION=.
   goto start
 )
-if %1=="/templocation" (
+if /i "%~1"=="/templocation" (
   if "%~2"=="" (
     goto error9
   ) else (
@@ -14,7 +14,7 @@ if %1=="/templocation" (
   )
 )
 :start
-echo Windows XP Installer for WinPE v1.1.0-pre2.3
+echo Windows XP Installer for WinPE v1.1.0-pre3.1
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -52,7 +52,7 @@ exit /b
 
 :guided_part
 echo test > %TEMPLOCATION%\testfile
-if not exist testfile goto error7
+if not exist %TEMPLOCATION%\testfile goto error7
 del %TEMPLOCATION%\testfile
 if exist %TEMPLOCATION%\diskpart.script.tmp del %TEMPLOCATION%\diskpart.script.tmp
 echo lis dis > %TEMPLOCATION%\diskpart_tmp.script
