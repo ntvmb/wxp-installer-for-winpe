@@ -14,7 +14,7 @@ if /i "%~1"=="/templocation" (
   )
 )
 :start
-echo Windows XP Installer for WinPE v1.1.0-pre3.2
+echo Windows XP Installer for WinPE v1.1.0-pre3.3
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -75,7 +75,7 @@ for /f "eol=T skip=10 delims=x tokens=1-13" %%I in ('diskpart /s %TEMPLOCATION%\
 if %PARTITION_COUNT% == 0 (
   echo No previous partitions detected. What do you want to do?
   echo 1 = Use entire disk
-  echo 2 = Use manual partitioning (Advanced)
+  echo 2 = Use manual partitioning ^(Advanced^)
   echo 3 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
@@ -89,7 +89,7 @@ if %PARTITION_COUNT% == 0 (
 if %PARTITION_COUNT% == 1 (
   echo One partition was detected. What do you want to do?
   echo 1 = Erase disk 
-  echo 2 = Use manual partitioning (Advanced)
+  echo 2 = Use manual partitioning ^(Advanced^)
   echo 3 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
@@ -103,8 +103,8 @@ if %PARTITION_COUNT% == 1 (
 if %PARTITION_COUNT% GTR 1 (
   echo Multiple partitions were detected. What do you want to do?
   echo 1 = Erase disk
-  echo 2 = Replace a partition (Not recommended. It might break things)
-  echo 3 = Use manual partitioning (Advanced)
+  echo 2 = Replace a partition ^(Not recommended. It might break things^)
+  echo 3 = Use manual partitioning ^(Advanced^)
   echo 4 = Quit setup
   set /p %HOWTOPARTITION%=
   if %HOWTOPARTITION% == 1 (
@@ -113,7 +113,7 @@ if %PARTITION_COUNT% GTR 1 (
   if %HOWTOPARTITION% == 2 (
     set /p PARTTOREPLACE=Partition to replace? (1-%PARTITION_COUNT%) && if defined %PARTTOREPLACE% (
       if %PARTTOREPLACE% LEQ %PARTITION_COUNT% (
-        if %PARTTOREPLACE% NEQ 0 (
+        if not %PARTTOREPLACE% LSS 1 (
           (echo sel par %PARTTOREPLACE% >> %TEMPLOCATION%\diskpart.script.tmp) && (echo del par >> %TEMPLOCATION%\diskpart.script.tmp) && (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start partitioning
         ) else (
           echo Error 0x05: Invalid response.
@@ -134,7 +134,7 @@ if %PARTITION_COUNT% == 0 if %HOWTOPARTITION% == 1 (
   echo Create primary partition on disk %DISK_TO_PARTITION%
   echo Format partition 1 as NTFS
   echo Assign partition to C:
-  set /p ans=Write changes to disk? (Y/n)
+  set /p ans=Write changes to disk? ^(Y/n^)
   if %ans% == Y (
   move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
   diskpart /s %TEMPLOCATION%\diskpart.script
@@ -145,7 +145,7 @@ if %PARTITION_COUNT% == 1 if %HOWTOPARTITION% == 1 (
   echo Create primary partition on disk %DISK_TO_PARTITION%
   echo Format partition on as NTFS
   echo Assign partition to C:
-  set /p ans=Write changes to disk? (Y/n)
+  set /p ans=Write changes to disk? ^(Y/n^)
   if %ans% == Y (
   move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
   diskpart /s %TEMPLOCATION%\diskpart.script
@@ -157,7 +157,7 @@ if %PARTITION_COUNT% GTR 1 (
     echo Create primary partition on disk %DISK_TO_PARTITION%
     echo Format partition on as NTFS
     echo Assign partition to C:
-    set /p ans=Write changes to disk? (Y/n)
+    set /p ans=Write changes to disk? ^(Y/n^)
     if %ans% == Y (
     move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
     diskpart /s %TEMPLOCATION%\diskpart.script
@@ -169,7 +169,7 @@ if %PARTITION_COUNT% GTR 1 (
     echo Create primary partition on disk %DISK_TO_PARTITION%
     echo Format partition on as NTFS
     echo Assign partition to C:
-    set /p ans=Write changes to disk? (Y/n)
+    set /p ans=Write changes to disk? ^(Y/n^)
     if %ans% == Y (
     move %TEMPLOCATION%\diskpart.script.tmp %TEMPLOCATION%\diskpart.script
     diskpart /s %TEMPLOCATION%\diskpart.script
