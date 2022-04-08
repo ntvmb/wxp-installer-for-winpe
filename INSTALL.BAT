@@ -14,7 +14,7 @@ if /i "%~1"=="/templocation" (
   )
 )
 :start
-echo Windows XP Installer for WinPE v1.1.0-pre3.1
+echo Windows XP Installer for WinPE v1.1.0-pre3.2
 ::Quick check for Windows PE
 if not exist X:\Windows\System32\wpeutil.exe goto error4
 ::Check Windows kernel version
@@ -62,7 +62,7 @@ echo I have retrieved the list of disks.
 :sel_disk
 if exist %TEMPLOCATION%\diskpart.script.tmp del %TEMPLOCATION%\diskpart.script.tmp
 set /p DISK_TO_PARTITION=Select the disk to partition... (Default: 0) 
-if not defined %DISK_TO_PARTITION% set DISK_TO_PARTITION=0
+if not defined DISK_TO_PARTITION set DISK_TO_PARTITION=0
 echo sel dis %DISK_TO_PARTITION% >%TEMPLOCATION%\diskpart.script.tmp
 echo Checking for selected disk...
 diskpart /s %TEMPLOCATION%\diskpart.script.tmp >nul
