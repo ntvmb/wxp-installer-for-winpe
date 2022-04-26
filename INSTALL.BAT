@@ -68,14 +68,17 @@ echo Checking for selected disk...
 diskpart /s %TEMPLOCATION%\diskpart.script.tmp >nul
 if %errorlevel% NEQ 0 (echo Error 0x07: Selected disk does not exist. && goto sel_disk)
 :how_to_partition
-::Very long lines ahead. These may be hard to understand.
 echo How do you want to configure the disk?
 echo 1 = Erase/Use entire disk
 echo 2 = Use manual partitioning ^(Advanced^)
 echo 3 = Quit setup
 set /p %HOWTOPARTITION%=
 if %HOWTOPARTITION% == 1 (
-  (echo clean >> %TEMPLOCATION%\diskpart.script.tmp) && (echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp) && (echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp) && (echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp) && goto start_partitioning
+  echo clean >> %TEMPLOCATION%\diskpart.script.tmp
+  echo cre par pri >> %TEMPLOCATION%\diskpart.script.tmp
+  echo form quick fs=ntfs >> %TEMPLOCATION%\diskpart.script.tmp
+  echo assign letter c >> %TEMPLOCATION%\diskpart.script.tmp
+  goto start_partitioning
 )
 if %HOWTOPARTITION% == 2 goto manual_part
 if %HOWTOPARTITION% == 3 exit /b
