@@ -1,7 +1,7 @@
 # wxp-installer-for-winpe
 A simpler way to install Windows XP using the Windows Preinstalled Environment (WinPE), designed for USB flash drives.
 
-# How to use
+### How to use
 This is the Windows XP Installer For WinPE developed by NTVMB. It is a simple solution to install Windows XP from a USB flash drive.
 This tool will guide you through preparing the Windows XP setup.
 
