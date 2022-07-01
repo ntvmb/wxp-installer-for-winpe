@@ -1,4 +1,6 @@
 # wxp-installer-for-winpe
+**NOTE: This tool is unsupported. Any bugs you find here will NOT be fixed.**
+
 A simpler way to install Windows XP using the Windows Preinstalled Environment (WinPE), designed for USB flash drives.
 
 ### How to use
